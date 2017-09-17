@@ -1,0 +1,91 @@
+---------------------------------------------------------------------------------
+Instruções válidas para o Amazon Linux AMI. Para Ubuntu é utilizado o apt-get.
+---------------------------------------------------------------------------------
+
+1) Instalar
+
+sudo yum -y install postgresql-libs postgresql postgresql-server
+
+sudo service postgresql initdb
+
+2) Start
+
+sudo service postgresql start
+
+3) Logando como 'postgres' 
+
+sudo su - postgres
+
+
+4) Criar banco de dados e usuário
+
+createuser livro
+createdb livro
+
+5) Definir a senha do usuário 'livro'
+
+psql
+alter user livro with encrypted password 'livro123';
+grant all privileges on database livro to livro;
+\q
+ 
+
+6) Logar com user 'livro'
+
+psql -h [host] [banco_de_dados] [usuario]
+psql -h localhost livro livro
+
+psql: FATAL:  Ident authentication failed for user "livro"
+
+7) Configurando permissões MD5
+
+Altere "ident" para "md5"
+
+vim /var/lib/pgsql9/data/pg_hba.conf
+
+8) Reiniciando o serviço (faça logout do user postgres)
+
+exit;
+
+sudo service postgresql restart;
+
+9) Logar com user 'livro', agora vai!
+
+psql -h localhost livro livro
+
+10) Criar tabela
+
+create table usuario (id serial not null, nome varchar(50), email varchar(50), data_cadastro date, primary key(id));
+insert into usuario (nome,email,data_cadastro) values('Ricardo Lecheta','rlecheta@gmail.com',now());
+select * from usuario;
+SELECT column_name,data_type,is_nullable,character_maximum_length FROM information_schema.columns WHERE table_name ='usuario';
+\q
+
+
+11) Dando permissões para um endereço IP
+
+sudo su - postgres
+vim /var/lib/pgsql9/data/pg_hba.conf
+
+---------------------------
+Adicione no final
+host all all 0.0.0.0/0 md5
+---------------------------
+
+exit
+sudo service postgresql restart
+
+12) Backup
+
+sudo su - postgres
+
+* backup
+pg_dump livro > livro_backup.txt
+
+* restore
+psql -e livro < livro_backup.txt
+
+
+13) Fazer serviço iniciar automaticamente
+
+sudo chkconfig postgresql on
