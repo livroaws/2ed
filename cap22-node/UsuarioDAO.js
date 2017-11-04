@@ -1,17 +1,15 @@
 var mysql = require('mysql');
 
-// Classe UsuarioDAO
+// Classe
 class UsuarioDAO {
 	// Função para conectar no banco de dados.
 	static connect() {
-		// Cria a conexão com o MySQL
 		var connection = mysql.createConnection({
 		  host     : 'livroinstance.c6zmdwouvkyo.sa-east-1.rds.amazonaws.com',
 		  user     : 'livro',
 		  password : 'livro123',
 		  database : 'livro'
 		});
-		// Conecta no banco de dados	
 		connection.connect();
 		return connection;
 	}
