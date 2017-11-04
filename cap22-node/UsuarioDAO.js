@@ -1,0 +1,33 @@
+var mysql = require('mysql');
+
+// Classe UsuarioDAO
+class UsuarioDAO {
+	// Função para conectar no banco de dados.
+	static connect() {
+		// Cria a conexão com o MySQL
+		var connection = mysql.createConnection({
+		  host     : 'livroinstance.c6zmdwouvkyo.sa-east-1.rds.amazonaws.com',
+		  user     : 'livro',
+		  password : 'livro123',
+		  database : 'livro'
+		});
+		// Conecta no banco de dados	
+		connection.connect();
+		return connection;
+	}
+	// Retorna a lista de usuários
+	static getUsuarios(callback) {
+		let connection = UsuarioDAO.connect()
+		// Cria uma consulta
+		let sql = "select * from usuario";
+		let query = connection.query(sql, function (error, results, fields) {
+			if (error) throw error;
+			// Retorna os dados pela função de callback
+			callback(results)
+		});
+		// Fecha a conexão.
+		connection.end();
+	}
+};
+
+module.exports = UsuarioDAO;
