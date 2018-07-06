@@ -1,0 +1,101 @@
+####################################
+
+Dicas para instalar o Node na AWS
+
+Com MySQL.
+
+####################################
+
+---------------------------------------------
+1) Entre no terminal do EC2
+---------------------------------------------
+chmod 400 chave.pem
+
+ssh -i chave.pem ec2-user@IP_DO_EC2
+
+---------------------------------------------
+2) Instalar o Node NVM (Node Version Manager)
+---------------------------------------------
+
+Tutorial da AWS:
+https://docs.aws.amazon.com/sdk-for-javascript/v2/developer-guide/setting-up-node-on-ec2-instance.html
+
+https://github.com/creationix/nvm
+
+// Download
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+
+// Precisa reiniciar o bash ou fazer logout/login no ssh
+source ~/.bashrc
+
+// Instala a versão 9 do node
+nvm install 9
+
+// Verifica o que está instalado.
+nvm ls
+
+// Verifica a versão do node
+node --version
+
+---------------------------------------------
+3) Baixar o projeto node do github
+---------------------------------------------
+
+// Instala o git
+sudo yum install -y git
+
+// Cria a pasta para baixar o projeto do github
+mkdir usuarios
+cd usuarios
+
+// Baixa os fontes do github
+git clone https://github.com/livroaws/2ed
+
+// Entra na pasta do projeto
+/home/ec2-user/usuarios/2ed/cap08-node
+
+// Baixar as dependências
+npm install
+
+// Executa o projeto
+node app.js
+
+// Neste momento o server node está no ar
+http://54.233.178.179:3000
+
+*** Para funcionar, no EC2 em Security Groups libere as portas 80 e 3000
+
+// *** A API De carros não vai funcionar pois ainda vamos configurar o MySQL
+http://54.233.178.179:3000/api/carros
+
+// Para parar o servidor é Ctrl+C
+// Se quiser mover para backgroud é Ctrl+Z e depois digite bg %1
+
+---------------------------------------------
+3) Configurar o Nginx
+---------------------------------------------
+
+// Vamos editar o arquivo de configuração
+// Para criar uma regra de proxy reverso
+// Assim o nginx recebe os dados na porta 80 e redireciona ao node na porta 3000
+
+sudo vim /etc/nginx/nginx.conf
+
+// No arquivo encontre a configuração do servidor em server { }
+// Depois encontre a configuração location { } que está vazia
+// E substitua por isso para criar a regra para redirecionar a porta 80 para 3000.
+
+location / {
+    proxy_set_header  X-Real-IP  $remote_addr;
+    proxy_set_header  Host       $http_host;
+    proxy_pass        http://127.0.0.1:3000;
+}
+
+// Depois disso salve o arquivo
+// Reiniciar o nginx
+sudo service nginx restart
+
+// Acesso o servidor na porta 80 e o node estará no ar
+http://54.233.238.30/
+http://54.233.238.30/api/usuarios
+
